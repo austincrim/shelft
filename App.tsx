@@ -1,5 +1,12 @@
 import { useEffect, useState } from 'react'
-import { Pressable, Text, TextInput, View, ScrollView } from 'react-native'
+import {
+  Pressable,
+  Text,
+  TextInput,
+  View,
+  ScrollView,
+  StyleSheet,
+} from 'react-native'
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
 import { SymbolView } from 'expo-symbols'
@@ -10,7 +17,6 @@ import {
 } from '@tanstack/react-query'
 import { FlashList } from '@shopify/flash-list'
 import { Image } from 'expo-image'
-import './global.css'
 
 const API_URL = `https://openlibrary.org/search.json`
 let queryClient = new QueryClient()
@@ -39,25 +45,9 @@ function App() {
   })
 
   return (
-    <SafeAreaView className="flex flex-col gap-12 h-full">
-      <View className="p-4 pb-3 bg-slate-100 flex flex-row items-center justify-between">
-        <Text className="text-4xl">Shelft</Text>
-        <View className="flex flex-row gap-4">
-          <Pressable>
-            <SymbolView
-              name="book"
-              resizeMode="scaleAspectFit"
-              style={{ width: 32, height: 32 }}
-            />
-          </Pressable>
-          <Pressable>
-            <SymbolView
-              name="person"
-              resizeMode="scaleAspectFit"
-              style={{ width: 32, height: 32 }}
-            />
-          </Pressable>
-        </View>
+    <SafeAreaView style={styles.screen}>
+      <View style={styles.header}>
+        <Text style={styles.title}>Shelft</Text>
       </View>
       <TextInput
         placeholder="Search books..."
@@ -65,17 +55,16 @@ function App() {
         value={search}
         onChangeText={setSearch}
       />
-      <View className="h-full">
-        {booksQuery.isLoading ? (
-          <Text>Loading...</Text>
-        ) : booksQuery.isSuccess ? (
+      <View className="flex h-full">
+        {booksQuery.isSuccess ? (
           <FlashList
-            data={booksQuery.data.docs}
+            data={booksQuery.data}
             renderItem={({ item }) => <BookRow book={item} />}
-            estimatedItemSize={20}
           />
+        ) : booksQuery.isLoading ? (
+          <Text>Loading...</Text>
         ) : (
-          <Text>Woops..</Text>
+          <Text>No books found</Text>
         )}
       </View>
       <StatusBar style="auto" />
@@ -98,6 +87,21 @@ function BookRow({ book }) {
     </View>
   )
 }
+
+let styles = StyleSheet.create({
+  screen: {
+    display: 'flex',
+    flex: 1,
+    padding: 16,
+  },
+  header: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  title: { fontSize: 32 },
+})
 
 function useDebounce(value, delay) {
   const [debouncedValue, setDebouncedValue] = useState(value)

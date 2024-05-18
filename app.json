@@ -2,6 +2,7 @@
   "expo": {
     "name": "shelft",
     "slug": "shelft",
+    "scheme": "sheflt",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -12,7 +13,8 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.austincrim.shelft"
     },
     "android": {
       "adaptiveIcon": {
@@ -22,6 +24,7 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": ["expo-router"]
   }
 }
