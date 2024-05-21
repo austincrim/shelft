@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import {
   Text,
   TextInput,
@@ -6,13 +6,15 @@ import {
   StyleSheet,
   FlatList,
   ActivityIndicator,
+  Keyboard,
+  Pressable,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import { Image } from 'expo-image'
-
-const API_URL = `https://www.googleapis.com/books/v1/volumes`
-const BOOKS_PER_PAGE = 10
+import { useSearchBooks } from '../hook'
+import { type Book } from '../types'
+import Swipeable from 'react-native-gesture-handler/Swipeable'
+import Animated, { useAnimatedStyle } from 'react-native-reanimated'
 
 let styles = StyleSheet.create({
   screen: {
@@ -54,44 +56,10 @@ let styles = StyleSheet.create({
   },
 })
 
-type BookResponse = {
-  items: Array<Book>
-  totalItems: number
-  kind: 'books#volumes'
-}
-
-type Book = {
-  id: string
-  volumeInfo: {
-    title: string
-    authors: Array<string>
-    averageRating: number
-    imageLinks: {
-      smallThumbnail: string
-      thumbnail: string
-    }
-  }
-}
-
 export default function Home() {
   let [search, setSearch] = useState('')
-  let debounced = useDebounce(search, 150)
-  let { data, fetchNextPage, status, isFetching, isFetchingNextPage } =
-    useInfiniteQuery({
-      queryKey: [debounced],
-      queryFn: ({ queryKey, pageParam }) => {
-        return fetch(
-          API_URL +
-            `?q=${queryKey}&startIndex=${
-              pageParam * BOOKS_PER_PAGE
-            }&maxResults=${BOOKS_PER_PAGE}`
-        ).then((res) => res.json()) as any as Promise<BookResponse>
-      },
-      initialPageParam: 0,
-      getNextPageParam: (lastPage, pages, lastPageParam) => {
-        return lastPage.items?.length > 0 ? lastPageParam + 1 : undefined
-      },
-    })
+  let { data, status, isFetching, fetchNextPage, isFetchingNextPage } =
+    useSearchBooks(search)
 
   return (
     <SafeAreaView style={styles.screen}>
@@ -101,20 +69,23 @@ export default function Home() {
         value={search}
         onChangeText={setSearch}
       />
-      <View style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
+      <View style={{ flex: 1 }}>
         {status === 'success' ? (
           <FlatList
             data={data?.pages.flatMap((page) => page.items)}
             renderItem={({ item }) => <BookRow book={item} />}
             keyExtractor={(book) => book?.id}
             onEndReached={() => !isFetching && fetchNextPage()}
+            onScrollBeginDrag={() => Keyboard.dismiss()}
           />
         ) : status === 'pending' ? (
           <Text>Loading...</Text>
         ) : (
           <Text>No books found</Text>
         )}
-        {isFetchingNextPage && <ActivityIndicator />}
+        {isFetchingNextPage && (
+          <ActivityIndicator style={{ flex: 1, marginTop: 24 }} size="large" />
+        )}
       </View>
     </SafeAreaView>
   )
@@ -124,36 +95,30 @@ function BookRow({ book }: { book: Book }) {
   if (!book) return <></>
   let volume = book.volumeInfo
   return (
-    <View style={styles.bookRow}>
-      <Image
-        style={{ width: 100, height: 150, borderRadius: 4 }}
-        source={
-          volume.imageLinks?.smallThumbnail ?? volume.imageLinks?.thumbnail
-        }
-        contentFit="cover"
-      />
-      <View style={[{ display: 'flex', gap: 4 }, styles.bookText]}>
-        <Text style={styles.bookTitle}>{volume.title}</Text>
-        {volume.authors?.length > 0 && (
-          <Text>by {volume.authors.join(', ')}</Text>
-        )}
+    <Swipeable
+      renderRightActions={() => {
+        return (
+          <Pressable>
+            <Text>Add to shelf</Text>
+          </Pressable>
+        )
+      }}
+    >
+      <View style={styles.bookRow}>
+        <Image
+          style={{ width: 100, height: 150, borderRadius: 4 }}
+          source={
+            volume.imageLinks?.smallThumbnail ?? volume.imageLinks?.thumbnail
+          }
+          contentFit="cover"
+        />
+        <View style={[{ display: 'flex', gap: 4 }, styles.bookText]}>
+          <Text style={styles.bookTitle}>{volume.title}</Text>
+          {volume.authors?.length > 0 && (
+            <Text>by {volume.authors.join(', ')}</Text>
+          )}
+        </View>
       </View>
-    </View>
+    </Swipeable>
   )
-}
-
-function useDebounce(value, delay) {
-  const [debouncedValue, setDebouncedValue] = useState(value)
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value)
-    }, delay)
-
-    return () => {
-      clearTimeout(handler)
-    }
-  }, [value, delay])
-
-  return debouncedValue
 }
