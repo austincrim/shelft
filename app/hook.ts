@@ -2,7 +2,7 @@ import { useInfiniteQuery } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import type { BookResponse } from './types'
 
-const API_URL = `https://www.googleapis.com/books/v1/volumes`
+export const API_URL = `https://www.googleapis.com/books/v1/volumes`
 const BOOKS_PER_PAGE = 10
 
 export function useSearchBooks(search: string) {

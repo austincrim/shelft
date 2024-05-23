@@ -10,6 +10,7 @@ export type Book = {
     title: string
     authors: Array<string>
     averageRating: number
+    ratingsCount: number
     imageLinks: {
       smallThumbnail: string
       thumbnail: string

@@ -7,14 +7,12 @@ import {
   FlatList,
   ActivityIndicator,
   Keyboard,
-  Pressable,
 } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { Link } from 'expo-router'
 import { Image } from 'expo-image'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { useSearchBooks } from '../hook'
 import { type Book } from '../types'
-import Swipeable from 'react-native-gesture-handler/Swipeable'
-import Animated, { useAnimatedStyle } from 'react-native-reanimated'
 
 let styles = StyleSheet.create({
   screen: {
@@ -37,14 +35,11 @@ let styles = StyleSheet.create({
     width: '100%',
   },
   bookRow: {
-    borderBottomColor: 'grey',
-    borderBottomWidth: 1,
     display: 'flex',
     flexDirection: 'row',
     gap: 16,
     paddingHorizontal: 8,
-    paddingVertical: 8,
-    maxWidth: '100%',
+    paddingVertical: 16,
   },
   bookTitle: {
     fontSize: 16,
@@ -74,7 +69,7 @@ export default function Home() {
           <FlatList
             data={data?.pages.flatMap((page) => page.items)}
             renderItem={({ item }) => <BookRow book={item} />}
-            keyExtractor={(book) => book?.id}
+            keyExtractor={(book, i) => book?.id ?? i}
             onEndReached={() => !isFetching && fetchNextPage()}
             onScrollBeginDrag={() => Keyboard.dismiss()}
           />
@@ -94,14 +89,14 @@ export default function Home() {
 function BookRow({ book }: { book: Book }) {
   if (!book) return <></>
   let volume = book.volumeInfo
+
+  // TODO refetch book details on nav, add shelf books to local store
   return (
-    <Swipeable
-      renderRightActions={() => {
-        return (
-          <Pressable>
-            <Text>Add to shelf</Text>
-          </Pressable>
-        )
+    <Link
+      onPress={() => {}}
+      href={{
+        pathname: '/book/[id]',
+        params: { id: book.id },
       }}
     >
       <View style={styles.bookRow}>
@@ -119,6 +114,6 @@ function BookRow({ book }: { book: Book }) {
           )}
         </View>
       </View>
-    </Swipeable>
+    </Link>
   )
 }
