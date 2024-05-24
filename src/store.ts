@@ -9,6 +9,7 @@ type Data = {
     name: string
     books: Array<Book>
   }>
+  addToShelf: (shelfId: number, book: Book) => void
 }
 
 export const useShelfStore = create(
@@ -22,13 +23,10 @@ export const useShelfStore = create(
       addToShelf(shelfId: number, book: Book) {
         set((state) => {
           let shelfToAdd = state.shelves.find((s) => s.id === shelfId)
-          if (shelfToAdd) {
-            shelfToAdd.books.push(book)
-            return {
-              shelves: [...state.shelves, shelfToAdd],
-            }
-          } else {
-            return state
+          if (!shelfToAdd) return state
+          shelfToAdd.books.push(book)
+          return {
+            shelves: [...state.shelves],
           }
         })
       },

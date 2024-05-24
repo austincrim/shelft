@@ -5,7 +5,7 @@ import type { BookResponse } from './types'
 export const API_URL = `https://www.googleapis.com/books/v1/volumes`
 const BOOKS_PER_PAGE = 10
 
-export function useSearchBooks(search: string) {
+export function useBookSearch(search: string) {
   let debounced = useDebounce(search, 150)
   let result = useInfiniteQuery({
     queryKey: [debounced],

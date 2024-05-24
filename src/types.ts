@@ -6,6 +6,7 @@ export type BookResponse = {
 
 export type Book = {
   id: string
+  etag: string
   volumeInfo: {
     title: string
     authors: Array<string>

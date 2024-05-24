@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useLocalSearchParams, useNavigation } from 'expo-router'
 import { useEffect } from 'react'
 import { Text, View } from 'react-native'
-import { API_URL } from '../hook'
+import { API_URL } from '../../hooks'
 import { Image } from 'expo-image'
 
 export default function Screen() {
