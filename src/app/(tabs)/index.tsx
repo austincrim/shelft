@@ -17,7 +17,7 @@ import { FlashList } from '@shopify/flash-list'
 import { useBookSearch } from '../../hooks'
 import { type Book } from '../../types'
 import { useShelfStore } from '../../store'
-import { BookCover } from '../components/BookCover'
+import { BookCover } from '../../components/BookCover'
 
 export default function Home() {
   let scrollRef = useRef(null)
@@ -129,6 +129,6 @@ let styles = StyleSheet.create({
   },
   bookTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontFamily: 'NewYorkBold',
   },
 })
