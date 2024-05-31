@@ -4,7 +4,6 @@ import {
   TextInput,
   View,
   StyleSheet,
-  FlatList,
   ActivityIndicator,
   Keyboard,
   ActionSheetIOS,
@@ -15,9 +14,9 @@ import { useScrollToTop } from '@react-navigation/native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import { FlashList } from '@shopify/flash-list'
 import { useBookSearch } from '../../hooks'
-import { type Book } from '../../types'
 import { useShelfStore } from '../../store'
 import { BookCover } from '../../components/BookCover'
+import type { Book } from '../../types'
 
 export default function Home() {
   let scrollRef = useRef(null)

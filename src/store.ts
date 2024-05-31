@@ -1,15 +1,12 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
-import { Book } from './types'
+import { Book, Shelf } from './types'
 
 type Data = {
-  shelves: Array<{
-    id: number
-    name: string
-    books: Array<Book>
-  }>
+  shelves: Array<Shelf>
   addToShelf: (shelfId: number, book: Book) => void
+  removeFromShelf: (shelfId: number, book: Book) => void
 }
 
 export const useShelfStore = create(
@@ -25,6 +22,18 @@ export const useShelfStore = create(
           let shelfToAdd = state.shelves.find((s) => s.id === shelfId)
           if (!shelfToAdd) return state
           shelfToAdd.books.push(book)
+          return {
+            shelves: [...state.shelves],
+          }
+        })
+      },
+      removeFromShelf(shelfId: number, book: Book) {
+        set((state) => {
+          let shelfToRemove = state.shelves.find((s) => s.id === shelfId)
+          if (!shelfToRemove) return state
+          shelfToRemove.books = shelfToRemove.books.filter(
+            (b) => b.id !== book.id
+          )
           return {
             shelves: [...state.shelves],
           }

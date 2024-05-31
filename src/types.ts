@@ -18,3 +18,9 @@ export type Book = {
     }
   }
 }
+
+export type Shelf = {
+  id: number
+  name: string
+  books: Array<Book>
+}
