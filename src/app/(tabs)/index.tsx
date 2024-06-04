@@ -60,6 +60,9 @@ function BookRow({ book }: { book: Book }) {
   if (!book) return <></>
   let store = useShelfStore((state) => state)
   let volume = book.volumeInfo
+  let bookInShelf = store.shelves
+    .flatMap((s) => s.books)
+    .find((b) => b.id === book.id)
 
   return (
     <View style={styles.bookRow}>
@@ -81,7 +84,12 @@ function BookRow({ book }: { book: Book }) {
         <View style={{ alignSelf: 'flex-end' }}>
           <TouchableOpacity
             onPress={async () => {
-              let options = [...store.shelves.map((s) => s.name), 'Cancel']
+              let options = [
+                ...store.shelves
+                  .filter((s) => s.id !== bookInShelf?.shelfId)
+                  .map((s) => s.name),
+                'Cancel',
+              ]
               let cancelButtonIndex = options.length - 1
               ActionSheetIOS.showActionSheetWithOptions(
                 {
@@ -89,14 +97,21 @@ function BookRow({ book }: { book: Book }) {
                   options,
                   cancelButtonIndex,
                 },
-                (pressedIndex) => {
-                  if (pressedIndex === cancelButtonIndex) return
-                  store.addToShelf(store.shelves[pressedIndex].id, book)
+                (index) => {
+                  if (index === cancelButtonIndex) return
+                  let toShelf = store.shelves.find(
+                    (s) => s.name === options[index]
+                  )
+                  if (!toShelf) return
+                  store.addToShelf(toShelf.id, book)
                 }
               )
             }}
           >
-            <SymbolView name="plus" resizeMode="scaleAspectFit" />
+            <SymbolView
+              name={bookInShelf ? 'ellipsis' : 'plus'}
+              resizeMode="scaleAspectFit"
+            />
           </TouchableOpacity>
         </View>
       </View>
@@ -114,10 +129,14 @@ let styles = StyleSheet.create({
   },
   title: { fontSize: 32 },
   input: {
-    borderBottomWidth: 2,
+    backgroundColor: 'white',
+    borderWidth: 1,
+    borderRadius: 20,
     fontSize: 20,
     marginTop: 32,
+    marginHorizontal: 'auto',
     padding: 8,
+    width: '75%',
   },
   bookRow: {
     display: 'flex',

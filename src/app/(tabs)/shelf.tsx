@@ -1,7 +1,6 @@
 import {
   ActionSheetIOS,
   FlatList,
-  Pressable,
   Text,
   TouchableOpacity,
   View,
@@ -16,7 +15,7 @@ export default function Shelf() {
   let { top } = useSafeAreaInsets()
 
   return (
-    <View style={{ marginTop: top + 12 }}>
+    <View style={{ marginTop: top + 12, flex: 1 }}>
       <FlatList
         data={shelves}
         style={{ paddingHorizontal: 12 }}
@@ -34,7 +33,7 @@ export default function Shelf() {
                 {shelf.name}
               </Text>
               {shelf.books.length === 0 ? (
-                <Text style={{ color: 'grey' }}>No books yet...</Text>
+                <Text style={{ color: 'grey' }}>No books yet</Text>
               ) : (
                 <FlatList
                   style={{ paddingBottom: 12 }}
@@ -55,21 +54,45 @@ export default function Shelf() {
 }
 
 function BookCard({ book, shelf }: { book: Book; shelf: Shelf }) {
-  let remove = useShelfStore((state) => state.removeFromShelf)
+  let store = useShelfStore()
 
   return (
     <TouchableOpacity
       activeOpacity={0.7}
       onLongPress={() => {
+        let options = [
+          ...store.shelves
+            .filter(
+              (s) => s.id !== shelf.id && !s.books.find((b) => b.id === book.id)
+            )
+            .map((s) => s.name),
+          'Delete',
+          'Cancel',
+        ]
+        let cancelButtonIndex = options.length - 1
+        let destructiveButtonIndex = options.length - 2
         ActionSheetIOS.showActionSheetWithOptions(
           {
-            options: ['Delete', 'Cancel'],
-            destructiveButtonIndex: 0,
-            cancelButtonIndex: 1,
+            options,
+            destructiveButtonIndex,
+            cancelButtonIndex,
           },
           (index) => {
-            if (index === 0) {
-              remove(shelf.id, book)
+            if (index === destructiveButtonIndex) {
+              store.removeFromShelf(shelf.id, book)
+            } else if (index === cancelButtonIndex) {
+              return
+            } else {
+              let toShelf = store.shelves.find((s) => s.name === options[index])
+              if (!toShelf) {
+                console.error(`could not find shelfId ${index}`)
+                return
+              }
+              store.moveBook({
+                fromShelfId: shelf.id,
+                toShelfId: toShelf.id,
+                book,
+              })
             }
           }
         )
