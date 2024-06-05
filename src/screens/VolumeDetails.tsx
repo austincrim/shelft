@@ -1,19 +1,18 @@
 import { useEffect } from 'react'
 import { Text, View } from 'react-native'
-import { useLocalSearchParams, useNavigation } from 'expo-router'
-import { Image } from 'expo-image'
 import { useQuery } from '@tanstack/react-query'
-import { API_URL } from '../../hooks'
-import { VolumeResponse } from '../../types'
-import { BookCover } from '../../components/BookCover'
+import { BOOKS_API_URL } from '@/hooks'
+import { VolumeResponse } from '@/types'
+import { BookCover } from '@/components/BookCover'
+import { NativeStackScreenProps } from '@react-navigation/native-stack'
+import type { RootParamList } from '../../App'
 
-export default function Screen() {
-  let navigation = useNavigation()
-  let { id } = useLocalSearchParams()
+type Props = NativeStackScreenProps<RootParamList, 'VolumeDetails'>
+export function VolumeDetails({ navigation, route }: Props) {
   let { data: book, status } = useQuery<VolumeResponse>({
-    queryKey: [`book/${id}`],
+    queryKey: [`book/${route.params.id}`],
     queryFn: async () => {
-      let res = await fetch(API_URL + `/${id}`)
+      let res = await fetch(BOOKS_API_URL + `/${route.params.id}`)
       return res.json()
     },
   })

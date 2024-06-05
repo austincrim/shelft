@@ -10,17 +10,16 @@ import {
 } from 'react-native'
 import { SymbolView } from 'expo-symbols'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { useScrollToTop } from '@react-navigation/native'
+import { useNavigation, useScrollToTop } from '@react-navigation/native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import { FlashList } from '@shopify/flash-list'
-import { useBookSearch } from '../../hooks'
-import { useShelfStore } from '../../store'
-import { BookCover } from '../../components/BookCover'
-import type { Book } from '../../types'
-import { router } from 'expo-router'
+import { useBookSearch } from '@/hooks'
+import { useShelfStore } from '@/store'
+import { BookCover } from '@/components/BookCover'
 import { useQueryClient } from '@tanstack/react-query'
+import type { Book } from '@/types'
 
-export default function Home() {
+export function Home() {
   let scrollRef = useRef(null)
   let [search, setSearch] = useState('lord of the rings')
   let { data, status, isFetching, isFetchingNextPage, fetchNextPage } =
@@ -60,6 +59,7 @@ export default function Home() {
 
 function BookRow({ book }: { book: Book }) {
   if (!book) return <></>
+  let navigation = useNavigation()
   let store = useShelfStore()
   let client = useQueryClient()
   let volume = book.volumeInfo
@@ -71,7 +71,7 @@ function BookRow({ book }: { book: Book }) {
     <TouchableOpacity
       onPress={() => {
         client.setQueryData([`book/${book.id}`], book)
-        router.push(`/book/${book.id}`)
+        navigation.navigate('VolumeDetails', { id: book.id })
       }}
       style={styles.bookRow}
     >

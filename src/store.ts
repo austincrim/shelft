@@ -1,7 +1,12 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
-import { Book, Shelf } from './types'
+import type { Book, Shelf } from '@/types'
+
+export const API_URL = 'http://192.168.8.181:8000'
+function fetchApi(path: string, options: RequestInit = {}) {
+  return fetch(`${API_URL}/${path}`, { ...options })
+}
 
 type Data = {
   shelves: Array<Shelf>
@@ -67,5 +72,44 @@ export const useShelfStore = create(
       },
     }),
     { name: 'books', storage: createJSONStorage(() => AsyncStorage) }
+  )
+)
+
+type UserStore = {
+  csrf: string | null
+  pat: string | null
+  user: {
+    id: string | null
+    email: string | null
+    name: string | null
+  }
+  fetchCsrf: () => Promise<void>
+}
+
+export const useUserStore = create(
+  persist<UserStore>(
+    (set) => ({
+      csrf: null,
+      pat: null,
+      user: {
+        id: null,
+        email: null,
+        name: null,
+      },
+      async fetchCsrf() {
+        try {
+          let res = await fetchApi('/sanctum/csrf-cookie')
+          console.log(res.headers.get('Set-Cookie'))
+          let token = res.headers
+            .getSetCookie()
+            .find((c) => c.startsWith('XSRF-TOKEN='))
+            ?.split('=')[1]
+          set({ csrf: token })
+        } catch (e) {
+          console.error('could not fetch csrf', e)
+        }
+      },
+    }),
+    { name: 'user', storage: createJSONStorage(() => AsyncStorage) }
   )
 )

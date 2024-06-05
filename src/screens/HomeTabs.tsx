@@ -1,12 +1,18 @@
 import React from 'react'
 import { SymbolView } from 'expo-symbols'
-import { Tabs } from 'expo-router'
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import { Home } from './HomeTabs/Home'
+import { Shelf } from './HomeTabs/Shelf'
+import { Settings } from './HomeTabs/Settings'
+import { HomeTabsParamList } from './types'
 
-export default function TabLayout() {
+let Tabs = createBottomTabNavigator<HomeTabsParamList>()
+export function HomeTabs() {
   return (
-    <Tabs screenOptions={{ tabBarActiveTintColor: 'indigo' }}>
+    <Tabs.Navigator screenOptions={{ tabBarActiveTintColor: 'indigo' }}>
       <Tabs.Screen
-        name="index"
+        name="Home"
+        component={Home}
         options={{
           title: 'Home',
           headerShown: false,
@@ -21,7 +27,8 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="shelf"
+        name="Shelf"
+        component={Shelf}
         options={{
           title: 'Shelf',
           headerShown: false,
@@ -36,7 +43,8 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="settings"
+        name="Settings"
+        component={Settings}
         options={{
           title: 'Settings',
           headerShown: false,
@@ -50,6 +58,6 @@ export default function TabLayout() {
           ),
         }}
       />
-    </Tabs>
+    </Tabs.Navigator>
   )
 }

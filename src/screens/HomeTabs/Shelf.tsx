@@ -6,13 +6,13 @@ import {
   View,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { useShelfStore } from '../../store'
-import { BookCover } from '../../components/BookCover'
-import type { Book, Shelf } from '../../types'
-import { router } from 'expo-router'
+import { useShelfStore } from '@/store'
+import { BookCover } from '@/components/BookCover'
+import type { Book, Shelf } from '@/types'
 import { useQueryClient } from '@tanstack/react-query'
+import { useNavigation } from '@react-navigation/native'
 
-export default function Shelf() {
+export function Shelf() {
   let shelves = useShelfStore((state) => state.shelves)
   let { top } = useSafeAreaInsets()
 
@@ -58,13 +58,14 @@ export default function Shelf() {
 function BookCard({ book, shelf }: { book: Book; shelf: Shelf }) {
   let store = useShelfStore()
   let client = useQueryClient()
+  let navigation = useNavigation()
 
   return (
     <TouchableOpacity
       activeOpacity={0.7}
       onPress={() => {
         client.setQueryData([`book/${book.id}`], book)
-        router.navigate(`/book/${book.id}`)
+        navigation.navigate('VolumeDetails', { id: book.id })
       }}
       onLongPress={() => {
         let options = [

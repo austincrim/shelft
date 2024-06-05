@@ -1,8 +1,8 @@
-import { useInfiniteQuery } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
-import type { BookResponse } from './types'
+import { useInfiniteQuery } from '@tanstack/react-query'
+import type { BookResponse } from '@/types'
 
-export const API_URL = `https://www.googleapis.com/books/v1/volumes`
+export const BOOKS_API_URL = `https://www.googleapis.com/books/v1/volumes`
 const BOOKS_PER_PAGE = 10
 
 export function useBookSearch(search: string) {
@@ -11,7 +11,7 @@ export function useBookSearch(search: string) {
     queryKey: [debounced],
     queryFn: ({ queryKey, pageParam }) => {
       return fetch(
-        API_URL +
+        BOOKS_API_URL +
           `?q=${queryKey}&startIndex=${
             pageParam * BOOKS_PER_PAGE
           }&maxResults=${BOOKS_PER_PAGE}`

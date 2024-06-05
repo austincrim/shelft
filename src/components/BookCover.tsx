@@ -1,8 +1,8 @@
-import { Image, type ImageErrorEventData } from 'expo-image'
-import { Book, VolumeResponse } from '../types'
-import { DimensionValue, StyleSheet, View } from 'react-native'
-import { SymbolView } from 'expo-symbols'
 import { useState } from 'react'
+import { DimensionValue, StyleSheet, View } from 'react-native'
+import { Image, type ImageErrorEventData } from 'expo-image'
+import { Book, VolumeResponse } from '@/types'
+import { SymbolView } from 'expo-symbols'
 
 export function BookCover({
   book,
