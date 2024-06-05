@@ -1,14 +1,16 @@
-import { useQuery } from '@tanstack/react-query'
-import { useLocalSearchParams, useNavigation } from 'expo-router'
 import { useEffect } from 'react'
 import { Text, View } from 'react-native'
-import { API_URL } from '../../hooks'
+import { useLocalSearchParams, useNavigation } from 'expo-router'
 import { Image } from 'expo-image'
+import { useQuery } from '@tanstack/react-query'
+import { API_URL } from '../../hooks'
+import { VolumeResponse } from '../../types'
+import { BookCover } from '../../components/BookCover'
 
 export default function Screen() {
   let navigation = useNavigation()
   let { id } = useLocalSearchParams()
-  let { data, status } = useQuery({
+  let { data: book, status } = useQuery<VolumeResponse>({
     queryKey: [`book/${id}`],
     queryFn: async () => {
       let res = await fetch(API_URL + `/${id}`)
@@ -17,24 +19,19 @@ export default function Screen() {
   })
 
   useEffect(() => {
-    navigation.setOptions({ title: data?.volumeInfo?.title ?? 'Loading...' })
-  }, [navigation, data])
+    navigation.setOptions({
+      title: book?.volumeInfo?.title ?? 'Loading...',
+      presentation: 'modal',
+    })
+  }, [navigation, book])
 
   return (
     <View style={{ flex: 1 }}>
-      {status === 'success' ? (
-        <Image
-          style={{ width: 200, height: 400 }}
-          source={
-            data.volumeInfo.imageLinks.thumbnail ??
-            data.volumeInfo.imageLinks.smallThumbnail
-          }
-          contentFit="cover"
-        />
+      {status === 'success' && book ? (
+        <BookCover width={200} height={300} book={book} />
       ) : (
         <Text>Loading...</Text>
       )}
-      {/* <Text>{data && JSON.stringify(data, null, 2)}</Text> */}
     </View>
   )
 }

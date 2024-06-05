@@ -1,5 +1,5 @@
 import { Image, type ImageErrorEventData } from 'expo-image'
-import { Book } from '../types'
+import { Book, VolumeResponse } from '../types'
 import { DimensionValue, StyleSheet, View } from 'react-native'
 import { SymbolView } from 'expo-symbols'
 import { useState } from 'react'
@@ -9,13 +9,15 @@ export function BookCover({
   width = 100,
   height = 150,
 }: {
-  book: Book
+  book: Book | VolumeResponse
   width?: DimensionValue
   height?: DimensionValue
 }) {
   let imageSrc =
-    book.volumeInfo.imageLinks?.thumbnail ??
-    book.volumeInfo.imageLinks?.smallThumbnail
+    book.volumeInfo.imageLinks.large ??
+    book.volumeInfo.imageLinks.medium ??
+    book.volumeInfo.imageLinks.thumbnail ??
+    book.volumeInfo.imageLinks.smallThumbnail
   let [error, setError] = useState<null | ImageErrorEventData>(null)
 
   return error ? (

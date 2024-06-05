@@ -17,6 +17,8 @@ import { useBookSearch } from '../../hooks'
 import { useShelfStore } from '../../store'
 import { BookCover } from '../../components/BookCover'
 import type { Book } from '../../types'
+import { router } from 'expo-router'
+import { useQueryClient } from '@tanstack/react-query'
 
 export default function Home() {
   let scrollRef = useRef(null)
@@ -58,14 +60,21 @@ export default function Home() {
 
 function BookRow({ book }: { book: Book }) {
   if (!book) return <></>
-  let store = useShelfStore((state) => state)
+  let store = useShelfStore()
+  let client = useQueryClient()
   let volume = book.volumeInfo
   let bookInShelf = store.shelves
     .flatMap((s) => s.books)
     .find((b) => b.id === book.id)
 
   return (
-    <View style={styles.bookRow}>
+    <TouchableOpacity
+      onPress={() => {
+        client.setQueryData([`book/${book.id}`], book)
+        router.push(`/book/${book.id}`)
+      }}
+      style={styles.bookRow}
+    >
       <BookCover book={book} />
       <View
         style={{
@@ -81,41 +90,51 @@ function BookRow({ book }: { book: Book }) {
             <Text>by {volume.authors.join(', ')}</Text>
           )}
         </View>
-        <View style={{ alignSelf: 'flex-end' }}>
-          <TouchableOpacity
-            onPress={async () => {
-              let options = [
-                ...store.shelves
-                  .filter((s) => s.id !== bookInShelf?.shelfId)
-                  .map((s) => s.name),
-                'Cancel',
-              ]
-              let cancelButtonIndex = options.length - 1
-              ActionSheetIOS.showActionSheetWithOptions(
-                {
-                  title: `Add ${book.volumeInfo.title} to shelf:`,
-                  options,
-                  cancelButtonIndex,
-                },
-                (index) => {
-                  if (index === cancelButtonIndex) return
-                  let toShelf = store.shelves.find(
-                    (s) => s.name === options[index]
-                  )
-                  if (!toShelf) return
-                  store.addToShelf(toShelf.id, book)
-                }
-              )
-            }}
-          >
-            <SymbolView
-              name={bookInShelf ? 'ellipsis' : 'plus'}
-              resizeMode="scaleAspectFit"
-            />
-          </TouchableOpacity>
+        <View
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <Text style={{ fontSize: 16 }}>{book.volumeInfo.averageRating}</Text>
+          <View>
+            <TouchableOpacity
+              onPress={async () => {
+                let options = [
+                  ...store.shelves
+                    .filter((s) => s.id !== bookInShelf?.shelfId)
+                    .map((s) => s.name),
+                  'Cancel',
+                ]
+                let cancelButtonIndex = options.length - 1
+                ActionSheetIOS.showActionSheetWithOptions(
+                  {
+                    title: `Add ${book.volumeInfo.title} to shelf:`,
+                    options,
+                    cancelButtonIndex,
+                  },
+                  (index) => {
+                    if (index === cancelButtonIndex) return
+                    let toShelf = store.shelves.find(
+                      (s) => s.name === options[index]
+                    )
+                    if (!toShelf) return
+                    store.addToShelf(toShelf.id, book)
+                  }
+                )
+              }}
+            >
+              <SymbolView
+                name={bookInShelf ? 'ellipsis' : 'plus'}
+                resizeMode="scaleAspectFit"
+              />
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   )
 }
 
@@ -133,7 +152,7 @@ let styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 20,
     fontSize: 20,
-    marginTop: 32,
+    marginVertical: 16,
     marginHorizontal: 'auto',
     padding: 8,
     width: '75%',
