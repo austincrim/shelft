@@ -4,10 +4,9 @@ import { useQuery } from '@tanstack/react-query'
 import { BOOKS_API_URL } from '@/hooks'
 import { VolumeResponse } from '@/types'
 import { BookCover } from '@/components/BookCover'
-import { NativeStackScreenProps } from '@react-navigation/native-stack'
-import type { RootParamList } from '../../App'
+import { RootStackScreenProps } from './types'
 
-type Props = NativeStackScreenProps<RootParamList, 'VolumeDetails'>
+type Props = RootStackScreenProps<'VolumeDetails'>
 export function VolumeDetails({ navigation, route }: Props) {
   let { data: book, status } = useQuery<VolumeResponse>({
     queryKey: [`book/${route.params.id}`],
@@ -20,7 +19,6 @@ export function VolumeDetails({ navigation, route }: Props) {
   useEffect(() => {
     navigation.setOptions({
       title: book?.volumeInfo?.title ?? 'Loading...',
-      presentation: 'modal',
     })
   }, [navigation, book])
 

@@ -9,7 +9,7 @@ import { HomeTabsParamList } from './types'
 let Tabs = createBottomTabNavigator<HomeTabsParamList>()
 export function HomeTabs() {
   return (
-    <Tabs.Navigator screenOptions={{ tabBarActiveTintColor: 'indigo' }}>
+    <Tabs.Navigator screenOptions={{ tabBarActiveTintColor: 'goldenrod' }}>
       <Tabs.Screen
         name="Home"
         component={Home}
@@ -19,8 +19,8 @@ export function HomeTabs() {
           tabBarIcon: ({ color }) => (
             <SymbolView
               size={28}
-              resizeMode="scaleAspectFill"
               name="house"
+              resizeMode="scaleAspectFill"
               tintColor={color}
             />
           ),
@@ -35,8 +35,8 @@ export function HomeTabs() {
           tabBarIcon: ({ color }) => (
             <SymbolView
               size={28}
-              resizeMode="scaleAspectFill"
               name="books.vertical"
+              resizeMode="scaleAspectFill"
               tintColor={color}
             />
           ),
@@ -51,8 +51,8 @@ export function HomeTabs() {
           tabBarIcon: ({ color }) => (
             <SymbolView
               size={28}
-              resizeMode="scaleAspectFill"
               name="gear"
+              resizeMode="scaleAspectFill"
               tintColor={color}
             />
           ),

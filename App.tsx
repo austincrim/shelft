@@ -10,15 +10,10 @@ import 'react-native-gesture-handler'
 import { NavigationContainer } from '@react-navigation/native'
 import { HomeTabs } from './src/screens/HomeTabs'
 import { VolumeDetails } from './src/screens/VolumeDetails'
+import { RootStackParamList } from '@/screens/types'
 // import { useUserStore } from '../store'
 
-export type RootParamList = {
-  HomeTabs: undefined
-  VolumeDetails: {
-    id: string
-  }
-}
-let Stack = createNativeStackNavigator<RootParamList>()
+let Stack = createNativeStackNavigator<RootStackParamList>()
 let queryClient = new QueryClient()
 
 export default function Root() {

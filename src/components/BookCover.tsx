@@ -13,14 +13,16 @@ export function BookCover({
   width?: DimensionValue
   height?: DimensionValue
 }) {
-  let imageSrc =
-    book.volumeInfo.imageLinks.large ??
-    book.volumeInfo.imageLinks.medium ??
-    book.volumeInfo.imageLinks.thumbnail ??
-    book.volumeInfo.imageLinks.smallThumbnail
+  let imageSrc = (
+    book.volumeInfo.imageLinks?.thumbnail ??
+    book.volumeInfo.imageLinks?.smallThumbnail ??
+    book.volumeInfo.imageLinks?.small ??
+    book.volumeInfo.imageLinks?.medium ??
+    book.volumeInfo.imageLinks?.large
+  )?.replace('http://', 'https://')
   let [error, setError] = useState<null | ImageErrorEventData>(null)
 
-  return error ? (
+  return !imageSrc || error ? (
     <View style={[{ width, height }, styles.placeholder]}>
       <SymbolView name="book" resizeMode="scaleAspectFit" tintColor="grey" />
     </View>

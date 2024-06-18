@@ -35,6 +35,8 @@ export const useShelfStore = create(
         set((state) => {
           let shelfToAdd = state.shelves.find((s) => s.id === shelfId)
           if (!shelfToAdd) return state
+          if (shelfToAdd.books.findIndex((b) => b.id === book.id) > 0)
+            return state
           shelfToAdd.books.push({ ...book, shelfId })
           return {
             shelves: [...state.shelves],

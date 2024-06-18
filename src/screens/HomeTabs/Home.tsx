@@ -6,10 +6,9 @@ import {
   StyleSheet,
   ActivityIndicator,
   Keyboard,
-  ActionSheetIOS,
 } from 'react-native'
 import { SymbolView } from 'expo-symbols'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useNavigation, useScrollToTop } from '@react-navigation/native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import { FlashList } from '@shopify/flash-list'
@@ -17,25 +16,27 @@ import { useBookSearch } from '@/hooks'
 import { useShelfStore } from '@/store'
 import { BookCover } from '@/components/BookCover'
 import { useQueryClient } from '@tanstack/react-query'
+import { ContextMenuButton } from 'react-native-ios-context-menu'
 import type { Book } from '@/types'
 
 export function Home() {
   let scrollRef = useRef(null)
   let [search, setSearch] = useState('lord of the rings')
+  let { top } = useSafeAreaInsets()
   let { data, status, isFetching, isFetchingNextPage, fetchNextPage } =
     useBookSearch(search)
 
   useScrollToTop(scrollRef)
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <View style={{ flex: 1, marginTop: top }}>
       <TextInput
         placeholder="Search books..."
         style={styles.input}
         value={search}
         onChangeText={setSearch}
       />
-      {status === 'success' ? (
+      {status === 'success' && data?.pages.length && data.pages.length > 0 ? (
         <FlashList
           data={data?.pages.flatMap((page) => page.items)}
           renderItem={({ item }) => <BookRow book={item} />}
@@ -45,15 +46,17 @@ export function Home() {
           onScrollBeginDrag={() => Keyboard.dismiss()}
           ref={scrollRef}
         />
-      ) : status === 'pending' ? (
-        <Text>Loading...</Text>
-      ) : (
+      ) : status === 'success' ? (
         <Text>No books found</Text>
+      ) : (
+        <Text style={{ display: 'flex', justifyContent: 'center' }}>
+          Loading...
+        </Text>
       )}
       {isFetchingNextPage && (
-        <ActivityIndicator style={{ marginTop: 24 }} size="large" />
+        <ActivityIndicator style={{ marginVertical: 4 }} size="large" />
       )}
-    </SafeAreaView>
+    </View>
   )
 }
 
@@ -100,37 +103,33 @@ function BookRow({ book }: { book: Book }) {
         >
           <Text style={{ fontSize: 16 }}>{book.volumeInfo.averageRating}</Text>
           <View>
-            <TouchableOpacity
-              onPress={async () => {
-                let options = [
+            <ContextMenuButton
+              menuConfig={{
+                menuTitle: `${bookInShelf ? 'Move' : 'Add'} to shelf...`,
+                menuItems: [
                   ...store.shelves
                     .filter((s) => s.id !== bookInShelf?.shelfId)
-                    .map((s) => s.name),
-                  'Cancel',
-                ]
-                let cancelButtonIndex = options.length - 1
-                ActionSheetIOS.showActionSheetWithOptions(
-                  {
-                    title: `Add ${book.volumeInfo.title} to shelf:`,
-                    options,
-                    cancelButtonIndex,
-                  },
-                  (index) => {
-                    if (index === cancelButtonIndex) return
-                    let toShelf = store.shelves.find(
-                      (s) => s.name === options[index]
-                    )
-                    if (!toShelf) return
-                    store.addToShelf(toShelf.id, book)
-                  }
+                    .map((s) => ({
+                      actionTitle: s.name,
+                      actionKey: String(s.id),
+                    })),
+                ],
+              }}
+              onPressMenuItem={({ nativeEvent }) => {
+                if (nativeEvent.actionKey === 'cancel') return
+
+                let toShelf = store.shelves.find(
+                  (s) => s.id === Number(nativeEvent.actionKey)
                 )
+                if (!toShelf) return
+                store.addToShelf(toShelf.id, book)
               }}
             >
               <SymbolView
                 name={bookInShelf ? 'ellipsis' : 'plus'}
                 resizeMode="scaleAspectFit"
               />
-            </TouchableOpacity>
+            </ContextMenuButton>
           </View>
         </View>
       </View>

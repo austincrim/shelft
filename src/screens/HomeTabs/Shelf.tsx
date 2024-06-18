@@ -8,9 +8,9 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useShelfStore } from '@/store'
 import { BookCover } from '@/components/BookCover'
-import type { Book, Shelf } from '@/types'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNavigation } from '@react-navigation/native'
+import type { Book, Shelf } from '@/types'
 
 export function Shelf() {
   let shelves = useShelfStore((state) => state.shelves)
@@ -59,7 +59,6 @@ function BookCard({ book, shelf }: { book: Book; shelf: Shelf }) {
   let store = useShelfStore()
   let client = useQueryClient()
   let navigation = useNavigation()
-
   return (
     <TouchableOpacity
       activeOpacity={0.7}
@@ -110,19 +109,23 @@ function BookCard({ book, shelf }: { book: Book; shelf: Shelf }) {
         alignItems: 'center',
         gap: 12,
         marginRight: 12,
+        maxWidth: 150,
       }}
     >
       <View
         style={{
-          shadowColor: '#222',
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.5,
-          shadowRadius: 5,
+          shadowColor: '#333',
+          shadowOffset: { width: 0, height: 1 },
+          shadowOpacity: 0.4,
+          shadowRadius: 3,
+          backgroundColor: 'lightgrey',
         }}
       >
         <BookCover book={book} />
       </View>
-      <Text key={book.id}>{book.volumeInfo.title}</Text>
+      <Text style={{ textAlign: 'center' }} key={book.id}>
+        {book.volumeInfo.title}
+      </Text>
     </TouchableOpacity>
   )
 }

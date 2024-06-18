@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useInfiniteQuery } from '@tanstack/react-query'
+import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query'
 import type { BookResponse } from '@/types'
 
 export const BOOKS_API_URL = `https://www.googleapis.com/books/v1/volumes`
@@ -9,6 +9,7 @@ export function useBookSearch(search: string) {
   let debounced = useDebounce(search, 150)
   let result = useInfiniteQuery({
     queryKey: [debounced],
+    placeholderData: keepPreviousData,
     queryFn: ({ queryKey, pageParam }) => {
       return fetch(
         BOOKS_API_URL +
